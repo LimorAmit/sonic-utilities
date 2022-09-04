@@ -1489,7 +1489,7 @@ main() {
     rm_list=$(find -L $TARDIR/etc -maxdepth 5 -type l)
     if [ ! -z "$rm_list" ]
     then
-        rm $rm_list
+        rm -f $rm_list
     fi
 
     # Remove secret from /etc files before tar
@@ -1593,9 +1593,11 @@ remove_secret_from_etc_files() {
     sed -i -E 's/^([^#]\S*\s*)(\S*)/\1****/g' $dumppath/etc/pam_radius_auth.conf
 
     # Remove radius passkey from per-server conf file /etc/pam_radius_auth.d/{ip}_{port}.conf
-    for filename in $dumppath/etc/pam_radius_auth.d/*.conf; do
-        sed -i -E 's/^([^#]\S*\s*)(\S*)/\1****/g' $filename
-    done
+    if [ -f "$dumppath/etc/pam_radius_auth.d/*.conf" ]; then
+        for filename in $dumppath/etc/pam_radius_auth.d/*.conf; do
+            sed -i -E 's/^([^#]\S*\s*)(\S*)/\1****/g' $filename
+        done
+    fi
 
     # Remove snmp community string from snmp.yml
     sed -i -E 's/(\s*snmp_\S*community\s*:\s*)(\S*)/\1****/g' $dumppath/etc/sonic/snmp.yml
